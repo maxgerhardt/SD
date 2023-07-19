@@ -28,8 +28,16 @@
     #define SDCARD_SPI SPI
   #endif
 
+  #ifndef SDCARD_SPI_SETTINGS
+    #define SDCARD_SPI_SETTINGS SPISettings
+  #endif
+
   #include <SPI.h>
-  static SPISettings settings;
+  #ifdef MCUDUDE_MINICORE
+    #include <SPI1.h>
+  #endif
+
+  static SDCARD_SPI_SETTINGS settings;
 #endif
 // functions for hardware SPI
 /** Send a byte to the card */
@@ -281,7 +289,7 @@ uint8_t Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
   SPSR &= ~(1 << SPI2X);
   #else // USE_SPI_LIB
   SDCARD_SPI.begin();
-  settings = SPISettings(250000, MSBFIRST, SPI_MODE0);
+  settings = SDCARD_SPI_SETTINGS(250000, MSBFIRST, SPI_MODE0);
   #endif // USE_SPI_LIB
   #endif // SOFTWARE_SPI
 
@@ -549,13 +557,13 @@ uint8_t Sd2Card::setSckRate(uint8_t sckRateID) {
           | (sckRateID & 2 ? (1 << SPR0) : 0);
   #else // USE_SPI_LIB
   switch (sckRateID) {
-    case 0:  settings = SPISettings(25000000, MSBFIRST, SPI_MODE0); break;
-    case 1:  settings = SPISettings(4000000, MSBFIRST, SPI_MODE0); break;
-    case 2:  settings = SPISettings(2000000, MSBFIRST, SPI_MODE0); break;
-    case 3:  settings = SPISettings(1000000, MSBFIRST, SPI_MODE0); break;
-    case 4:  settings = SPISettings(500000, MSBFIRST, SPI_MODE0); break;
-    case 5:  settings = SPISettings(250000, MSBFIRST, SPI_MODE0); break;
-    default: settings = SPISettings(125000, MSBFIRST, SPI_MODE0);
+    case 0:  settings = SDCARD_SPI_SETTINGS(25000000, MSBFIRST, SPI_MODE0); break;
+    case 1:  settings = SDCARD_SPI_SETTINGS(4000000, MSBFIRST, SPI_MODE0); break;
+    case 2:  settings = SDCARD_SPI_SETTINGS(2000000, MSBFIRST, SPI_MODE0); break;
+    case 3:  settings = SDCARD_SPI_SETTINGS(1000000, MSBFIRST, SPI_MODE0); break;
+    case 4:  settings = SDCARD_SPI_SETTINGS(500000, MSBFIRST, SPI_MODE0); break;
+    case 5:  settings = SDCARD_SPI_SETTINGS(250000, MSBFIRST, SPI_MODE0); break;
+    default: settings = SDCARD_SPI_SETTINGS(125000, MSBFIRST, SPI_MODE0);
   }
   #endif // USE_SPI_LIB
   return true;
@@ -564,7 +572,7 @@ uint8_t Sd2Card::setSckRate(uint8_t sckRateID) {
 //------------------------------------------------------------------------------
 // set the SPI clock frequency
 uint8_t Sd2Card::setSpiClock(uint32_t clock) {
-  settings = SPISettings(clock, MSBFIRST, SPI_MODE0);
+  settings = SDCARD_SPI_SETTINGS(clock, MSBFIRST, SPI_MODE0);
   return true;
 }
 #endif
